@@ -5,6 +5,7 @@ Created on Sat Feb 12 15:05:06 2022
 
 @author: miramota
 """
+
 #%%
 
 import tkinter as tk
@@ -16,30 +17,6 @@ root.withdraw()
 folder_path = filedialog.askdirectory()
 #filename = 'tester.xlsx'
 #file_path = os.path.join(folder_path + '/' + filename)
-
-#%%
-import czifile 
-import numpy as np
-from skimage import filters
-from matplotlib import pyplot as plt
-from statistics import mean
-
-path = ('/Users/miramota/Desktop/IMGS/01142022_Injury5.czi')
-img = czifile.imread(path)
-img = img[0,0,0,:,:,:,0]
-maximg = img.max(axis = 0)
-thresh = filters.threshold_otsu(maximg)
-
-binary_mask = maximg >= thresh
-fig, ax = plt.subplots()
-plt.imshow(binary_mask, cmap='gray')
-plt.show()
-
-
-
-
-
-
 
 #%%
 import numpy as np
@@ -59,7 +36,6 @@ plt.show()
 from pathlib import Path
 import czifile
 import pandas as pd
-
  
 injury = []
 no_injury = []
@@ -86,20 +62,13 @@ noinjury_values= []
 noinjury_max= []
 injury_values= []
 injury_max = []
-noinjury_otsu = []
 
 for i in noinjury_filepath:
     value = czifile.imread(i)
     value = value[0,0,0,:,:,:,0]
     noinjury_values.append(value)
     noi_max = np.max(value, axis = 0)
-    noinjury_max.append(noi_max)
-    for noi in noinjury_max:
-        threshold = filters.threshold_otsu(noi)
-        noinjury_otsu.append(threshold)
-        avgmax = mean(noinjury_otsu)
-        return avgmax
-        
+    noinjury_max.append(max)
     
 
 for z in injury_filepath[1:]:
@@ -112,8 +81,12 @@ for z in injury_filepath[1:]:
 imgs_df['No Injury Values'], imgs_df['No Injury Max Proj'], imgs_df['Injury Values'], imgs_df['Injury Max Proj'] = [noinjury_values, noinjury_max, injury_values, injury_max]
 
 
-  
 
+fig, ax = plt.subplots(figsize =(10, 7))
+ax.hist(noi_max, bins = 256, range=(0,1))
+plt.show()
+
+    
 
 
 

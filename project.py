@@ -63,10 +63,6 @@ plt.show()
 
 
 
-
-
-
-
 #%%
 import numpy as np
 from matplotlib import pyplot as plt
@@ -109,7 +105,7 @@ for dir, subdir, files in os.walk(folder_path):
             if '.DS_Store' in x:
                 continue
 
-imgs_df = pd.DataFrame(list(zip(noinjury_filepath, no_injury)),
+imgs_df = pd.DataFrame(list(zip(injury_filepath, injury)),
                        columns = ['Filepath', 'Filename'])   
         
 noinjury_values= []
@@ -128,7 +124,7 @@ for i in noinjury_filepath:
         threshold = filters.threshold_otsu(noi)
         noinjury_otsu.append(threshold)
         avgmax = mean(noinjury_otsu)
-        return avgmax
+    
         
     
 
@@ -142,15 +138,15 @@ for z in injury_filepath[1:]:
 imgs_df['No Injury Values'], imgs_df['No Injury Max Proj'], imgs_df['Injury Values'], imgs_df['Injury Max Proj'] = [noinjury_values, noinjury_max, injury_values, injury_max]
 
 
-
+'''
 img_values = []
 max_values = []
-    for image in dfname['Filepath']:
+for image in dfname['Filepath']:
         reader = AICSImage(image)
         img_array = reader.get_image_data('ZYX', T =0, C=0)
         img_values.append(img_array)
         maxprojection = img_array.max(axis = 0)
-        max_values.append(maxprojection)
+        max_values.append(maxprojection)'''
 #%%
 
 fig, ax = plt.subplots(figsize =(10, 7))
@@ -174,9 +170,9 @@ meanvalue = i[binaryi].mean()
 
 #%%
 #THIS ONE 
-dfcopy = imgs_df.copy()
+# dfcopy = imgs_df.copy()
 
-def add_values_to_df(dfname, mode, titles , *list_to_add):
+def add_values_to_df(dfname, mode, titles , list_to_add):
     '''
     Trying to make a function to add lists created while going through a current dataframe \
         into new rows or columns depending on what is defined in mode. 
@@ -207,14 +203,56 @@ def add_values_to_df(dfname, mode, titles , *list_to_add):
         df = pd.DataFrame()
         for x in list_to_add:
             df = pd.DataFrame(list(zip(list_to_add)),columns = [titles])
-            dfname.concat([dfname, df], sort =False).fillna(0)
+            dfname = dfname.concat([dfname, df], sort =False).fillna(0)
             #dfname.append(df, ignore_index=True).fillna(0)
             
     return dfname
       
-
+dfcopy = add_values_to_df(dfcopy, mode = 'row' , titles = titles, list_to_add= [row10,row11])
 #adding rows to dataframe 
 #d = pd.DataFrame(list(zip(injury_filepath, injury)),columns = ['Filepath', 'Filename'])
+
+
+duplicated = pd.concat([dfcopy, dfcopy.loc[:,['Filename', 'Filepath']]], axis=0, join='outer')
+print(duplicated)
+
+new_files_path = Path('/Users/miramota/Desktop/new')
+print(list(new_files_path.iterdir()))
+
+def calc_metric(file):
+    
+    img = czifile.imread(file)
+    img = img[0,1,:,:,:,0]
+    maximg = img.max(axis = 0)
+    # norm
+    thresh = filters.threshold_otsu(maximg)
+    
+    binary_mask = maximg >= thresh
+    
+    grand_mean = maximg[binary_mask].mean()
+    
+    return grand_mean
+
+for file in new_files_path.iterdir():
+    if file.stem == '.DS_Store':
+        continue
+    
+    metric = calc_metric(file)
+    
+    res_dict = {'Filename':str(file.stem), 'Filepath':str(file), 'metric':metric}
+
+for file in new_files_path.iterdir():
+    if file.stem == '.DS_Store':
+        continue
+    
+
+    
+    metric = calc_metric(file)
+    
+    res_dict = {'Filename':str(file.stem), 'Filepath':str(file), 'metric':metric}
+    
+    
+    dfcopy= dfcopy.append(res_dict, ignore_index=True)
 
 
 #adds rows to dataframe  but have to make a dataframe first 

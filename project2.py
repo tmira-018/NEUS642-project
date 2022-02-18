@@ -67,6 +67,18 @@ def calculate_threshold(path):
     thresh = filters.threshold_otsu(maximg)
     return thresh 
 
+
+
+noinjury = []
+injury= []
+noinjury_rnai= []
+injury_rnai= [] 
+
+for file in folder_path.rglob('*'):
+    if file.suffix == '.czi':
+        #print(file)
+        
+
 no_injury= []
 for file in folder_path.iterdir():
     if 'NoInjury' in file.stem:
@@ -100,3 +112,6 @@ czi_array = czi_array[0,0,:,:,:,]
 maxz = czi_array.max(axis = 0)
 
 calc = calculate_metrics(maxz, 19)
+
+
+file_df = pd.DataFrame.from_dict({'Filename':[str(file.stem)], 'Filepath':[str(file)]})

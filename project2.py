@@ -73,13 +73,28 @@ noinjury = []
 injury= []
 noinjury_rnai= []
 injury_rnai= [] 
+nornai = []
+rnais = []
 
 for file in folder_path.rglob('*'):
     if file.suffix == '.czi':
-        #print(file)
-        
+        if 'RNAi' not in file.stem:
+            nornai.append(file)
+        elif 'RNAi' in file.stem:
+            rnais.append(file)     
+            
+for x in nornai: 
+    if 'NoInjury' in x.stem:
+        noinjury.append(x)
+    elif 'NoInjury' not in x.stem:
+        injury.append(x)
+for y in rnais: 
+    if 'NoInjury' in y.stem:
+        noinjury_rnai.append(y)
+    elif 'NoInjury' not in y.stem: 
+        injury_rnai.append(y)
 
-no_injury= []
+no_injury_thresholds = []
 for file in folder_path.iterdir():
     if 'NoInjury' in file.stem:
         print(file)

@@ -110,8 +110,8 @@ for file in folder_path.iterdir():
         file = file.absolute()
         file = file.as_posix()
         threshold = calculate_threshold(file)
-        no_injury.append(threshold)
-        mean = statistics.mean(no_injury)
+        noinjury.append(threshold)
+        mean = statistics.mean(noinjury)
     print(mean)
         
         
@@ -127,13 +127,12 @@ def calculate_metrics(maximg ,thresh):
    count = np.sum(binary_mask)
    percentarea = (count / area) * 100
    metric = [mean_value, percentarea]
-   #metric = {'Mean Value': [mean_value], 'Percent Area': [percentarea]}
    return metric
 
 z= '/Users/miramota/Desktop/IMGS/NoInjury/01142022_NoInjury9.czi'
 def get_max_proj(path):
-    path = z.absolute()
-    path = file.as_posix()
+    #path = z.absolute()
+    #path = file.as_posix()
     czi_img = AICSImage(path)
     czi_array = czi_img.data
     czi_array = czi_array[0,0,:,:,:,]
@@ -145,18 +144,15 @@ calc['Filepath'] = z
 df = pd.DataFrame.from_dict(calc, orient = 'columns')
 
 
-file_df = pd.DataFrame.from_dict({'Filename':[str(file.stem)]})
-
+column_names = ['Filename','Mean Value', 'Percent Area']
+df = pd.DataFrame(columns= column_names)
 for r in injury_rnai:
     filename = r.stem
-    r = file.absolute()
-    r = r.as_posix()
-    values = calculate_metrics(maxz,19)
-    df = pd.DataFrame({
-    'Filename' : filename,
-    'Values': [values]})
-    split_df = pd.DataFrame(df['Values'].tolist(), columns=['Mean', 'Percent Area'])
-    df = pd.DataFrame()
-    
+    #r = r.absolute()
+    #r = r.as_posix()
+    max = get_max_proj(r)
+    values = calculate_metrics(max,19) 
+    res_dict= {'Filename':filename, 'Mean Value': values[0], 'Percent Area': values[1]}
+    df= df.append(res_dict, ignore_index=True)
     
     

@@ -15,6 +15,15 @@ from skimage import filters
 import statistics 
 # aicsimageio[czi]
 
+'https://hearingbrain.org/tmp/Injury/01142022_Injury3.czi'
+'https://hearingbrain.org/tmp/Injury/01142022_Injury5.czi'
+'https://hearingbrain.org/tmp/InjuryRNAi/01142022NijARNAi_Injury1.czi'
+'https://hearingbrain.org/tmp/InjuryRNAi/01142022NijARNAi_Injury3.czi'
+'https://hearingbrain.org/tmp/NoInjury/01142022_NoInjury2.czi'
+'https://hearingbrain.org/tmp/NoInjury/01142022_NoInjury3.czi'
+'https://hearingbrain.org/tmp/NoInjuryRNAi/01142022NijARNAi_NoInjury1.czi'
+'https://hearingbrain.org/tmp/NoInjuryRNAi/01142022NijARNAi_NoInjury4.czi'
+
 folder_path = '/Users/miramota/Desktop/IMGS'
 folder_path = Path(folder_path)
 
@@ -117,16 +126,37 @@ def calculate_metrics(maximg ,thresh):
    mean_value = maximg[binary_mask].mean()
    count = np.sum(binary_mask)
    percentarea = (count / area) * 100
-   metric = {'Mean Value': [mean_value], 'Percent Area': [percentarea]}
+   metric = [mean_value, percentarea]
+   #metric = {'Mean Value': [mean_value], 'Percent Area': [percentarea]}
    return metric
 
-z= '/Users/miramota/Desktop/IMGS/01142022_NoInjury9.czi'
-czi_img = AICSImage(z)
-czi_array = czi_img.data
-czi_array = czi_array[0,0,:,:,:,]
-maxz = czi_array.max(axis = 0)
+z= '/Users/miramota/Desktop/IMGS/NoInjury/01142022_NoInjury9.czi'
+def get_max_proj(path):
+    path = z.absolute()
+    path = file.as_posix()
+    czi_img = AICSImage(path)
+    czi_array = czi_img.data
+    czi_array = czi_array[0,0,:,:,:,]
+    maxz = czi_array.max(axis = 0)
+    return maxz
 
 calc = calculate_metrics(maxz, 19)
+calc['Filepath'] = z
+df = pd.DataFrame.from_dict(calc, orient = 'columns')
 
 
-file_df = pd.DataFrame.from_dict({'Filename':[str(file.stem)], 'Filepath':[str(file)]})
+file_df = pd.DataFrame.from_dict({'Filename':[str(file.stem)]})
+
+for r in injury_rnai:
+    filename = r.stem
+    r = file.absolute()
+    r = r.as_posix()
+    values = calculate_metrics(maxz,19)
+    df = pd.DataFrame({
+    'Filename' : filename,
+    'Values': [values]})
+    split_df = pd.DataFrame(df['Values'].tolist(), columns=['Mean', 'Percent Area'])
+    df = pd.DataFrame()
+    
+    
+    
